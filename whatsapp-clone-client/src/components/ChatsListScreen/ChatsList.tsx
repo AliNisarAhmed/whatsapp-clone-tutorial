@@ -1,8 +1,9 @@
-import React from "react";
-import { chats } from "../../db";
+import React, { useState, useMemo } from "react";
 import moment from "moment";
 import { List, ListItem } from "@material-ui/core";
 import styled from "styled-components";
+
+const serverUrl = process.env.REACT_APP_SERVER_URL;
 
 const Container = styled.div`
 	height: calc(100% - 56px);
@@ -43,7 +44,7 @@ const MessageContent = styled.div`
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
-`
+`;
 
 const MessgeDate = styled.div`
 	position: absolute;
@@ -51,14 +52,22 @@ const MessgeDate = styled.div`
 	top: 20px;
 	right: 0;
 	font-size: 13px;
-`
+`;
 
 const ChatsList: React.FC = () => {
+	const [chats, setChats] = useState<any[]>([]);
+
+	useMemo(async () => {
+		const body = await fetch(`${serverUrl}/chats`);
+		const chats = await body.json();
+		setChats(chats);
+	}, []);
+
 	return (
-		<div>
-			<List>
+		<Container>
+			<StyledList>
 				{chats.map(chat => (
-					<ListItem key={chat.id} button>
+					<StyledListItem key={chat.id} button>
 						<ChatPicture src={chat.picture} alt="Profile" />
 						<ChatInfo>
 							<ChatName>{chat.name}</ChatName>
@@ -71,10 +80,10 @@ const ChatsList: React.FC = () => {
 								</>
 							)}
 						</ChatInfo>
-					</ListItem>
+					</StyledListItem>
 				))}
-			</List>
-		</div>
+			</StyledList>
+		</Container>
 	);
 };
 
